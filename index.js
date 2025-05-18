@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 
 const app = express();
@@ -24,11 +24,10 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    
+
     // Connect to MongoDB
     await client.connect();
     const coffeeCollection = client.db('coffeeDB').collection('coffees');
-    // const teaCollection = client.db('coffeeDB').collection('teas');
 
     console.log("Connected to MongoDB");
 
@@ -36,24 +35,30 @@ async function run() {
     app.post('/coffees', async (req, res) => {
       const newCoffee = req.body;
       console.log('Received new coffee:', newCoffee);
-
       const result = await coffeeCollection.insertOne(newCoffee);
       res.send(result);
     });
-    // app.post('/tea', async (req, res) => {
-    //   const newCoffee = req.body;
-    //   console.log('Received new coffee:', newCoffee);
 
-    //   const result = await teaCollection.insertOne(newCoffee);
-    //   res.send(result);
-    // });
-    // app.get('/tea', async (req, res) => {
-    //   const newCoffee = req.body;
-    //   console.log('Received new coffee:', newCoffee);
+    // get for view all api at display endpoint to add coffee
+    app.get('/coffees', async (req, res) => {
+      const result = await coffeeCollection.find().toArray()
+      res.json(result);
+    });
 
-    //   const result = await teaCollection.find().toArray()
-    //   res.json(result);
-    // });
+    // get for view deteals at display endpoint to add coffee
+    app.get('/coffees/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await coffeeCollection.findOne(query);
+      res.send(result);
+    })
+
+    app.delete('/coffees/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await coffeeCollection.deleteOne(query);
+      res.send(result);
+    })
 
 
   } catch (err) {
