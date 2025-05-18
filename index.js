@@ -45,7 +45,7 @@ async function run() {
       res.json(result);
     });
 
-    // get for view deteals at display endpoint to add coffee
+    // get for view details at display endpoint to add coffee
     app.get('/coffees/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
@@ -53,6 +53,35 @@ async function run() {
       res.send(result);
     })
 
+    //for edit api
+    app.put('/coffees/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) }
+      const options = { upsert: true };
+      const updatedCoffee = req.body;
+
+      //ai 2ta updateddoc er modhe jekono ekta use korte hobe
+
+      const updateddoc = {
+        $set: updatedCoffee
+      }
+      // or
+      // const updateddoc = {
+      //   $set: {
+      //     name: updatedCoffee.name,
+      //     Quantity: updatedCoffee.Quantity,
+      //     supplier: updatedCoffee.supplier,
+      //     taste: updatedCoffee.taste,
+      //     category: updatedCoffee.category,
+      //     details: updatedCoffee.details,
+      //     photo: updatedCoffee.photo,
+      //   }
+      // }
+      const result = await coffeeCollection.updateOne(filter, updateddoc, options);
+      res.send(result);
+    })
+
+    // for delete to api
     app.delete('/coffees/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
